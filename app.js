@@ -8,6 +8,7 @@ const users = require("./data");
 const { createRefreshToken, createAccessToken, sendRefreshToken, sendAccessToken } = require("./tokens");
 const { isAuth } = require("./isAuth");
 const verify = require("jsonwebtoken/verify");
+var nodemailer = require('nodemailer');
 
 
    
@@ -166,7 +167,46 @@ const verify = require("jsonwebtoken/verify");
     })
 
 
-  
+      app.post("/mailer" , (_req , res) => {
+             
+        var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+            }
+          });
+          
+          var mailOptions = {
+            from: 'adetayoomotomiwa99@gmail.com',
+            to: 'browndev1999@gmail.com',
+            subject: 'Sending Email using Node.js',
+            text: 'That was easy!'
+          };
+          
+
+            try{
+               
+               transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+                    throw new Error(error);
+            } else {
+                 res.send({
+                     message:"Email Successfully Sent",
+                     info:info.response
+                 })
+            }
+          });
+
+
+            }
+
+             catch(err){
+                  res.send({error:err.message})
+            }
+          
+
+      })
 
 
      

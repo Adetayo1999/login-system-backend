@@ -35,7 +35,7 @@
     res.cookie("refreshtoken" , refreshToken , {
         path:'/refresh_token',
         httpOnly:true,
-        secure: process.env.NODE_ENV === 'production'? true: false
+        secure: process.env.NODE_ENV === 'production' ? true : false
     })
      
 }

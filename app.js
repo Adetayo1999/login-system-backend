@@ -20,7 +20,7 @@ var nodemailer = require('nodemailer');
     app.use(cookieParser());
     app.use(express.json());
     app.use(cors({
-      origin:"http://localhost:3000",
+      origin:"https://login-system-frontend-xi.vercel.app",
       credentials:true
     }));
     app.use(express.urlencoded({extended:true}));

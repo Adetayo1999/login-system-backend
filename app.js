@@ -145,7 +145,7 @@ var nodemailer = require('nodemailer');
 
           const refreshToken = req.cookies.refreshtoken;
                   
-        if(!refreshToken) { return  res.send({accessToken:"" })}
+        if(!refreshToken) { return  res.send({accessToken:"4" })}
          let payload = null;
         try{
             payload =verify(refreshToken , process.env.REFRESH_TOKEN_SECRET) 
@@ -153,17 +153,17 @@ var nodemailer = require('nodemailer');
         }
         catch(err){
                  
-            res.send({accessToken:""})
+            res.send({accessToken:"3"})
         }
            
       
 
         const user = users.find(user => user._id === payload.userId);
 
-           if(!user) { return res.send({accessToken:""})} 
+           if(!user) { return res.send({accessToken:"2"})} 
               
           if(user.refreshToken !== refreshToken){
-              return res.send({accessToken:""})
+              return res.send({accessToken:"1"})
           }
           
           const accessToken = createAccessToken(user._id);

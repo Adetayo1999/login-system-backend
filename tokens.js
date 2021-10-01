@@ -33,7 +33,9 @@
  const sendRefreshToken = (res , refreshToken) => {
      
     res.cookie("refreshtoken" , refreshToken , {
-        path:'/refresh_token'
+        path:'/refresh_token',
+        httpOnly:true,
+        secure: process.env.NODE_ENV === 'production'? true: false
     })
      
 }

@@ -19,24 +19,28 @@ var nodemailer = require('nodemailer');
     const app = express();
     app.use(cookieParser());
     app.use(express.json());
-    app.use(cors());
+    app.use(cors({
+      origin:"http://localhost:3000",
+      credentials:true
+    }));
     app.use(express.urlencoded({extended:true}));
     
      
     app.post("/register" , async (req , res) => {
        
-         const { username , password} = req.body;
+         const { name , email , password} = req.body;
 
           try{
-           const user = users.find(user => user.username === username);
+           const user = users.find(user => user.email === email);
            
              
-           if(user) { throw new Error("Username Taken")};
+           if(user) { throw new Error("Email Taken")};
            const hashedPassword = await hash(password , 10);   
            
                 users.push({
                     _id:uuidv4(),
-                    username,
+                    name,
+                    email,
                     password:hashedPassword
                 })
              res.send({message:"Successfully Registered"});
@@ -49,17 +53,19 @@ var nodemailer = require('nodemailer');
 
           }
       
-
+       console.log(users);
 
     })
        
       
     app.post("/login" , async (req , res) => {
-       
-        const { username , password} = req.body;
+                 
+        const { email , password} = req.body;
+          
+          
 
          try{
-          const user = users.find(user => user.username === username);
+          const user = users.find(user => user.email === email);
           
             
           if(!user) { throw new Error("Invalid Email/Password")};
@@ -97,10 +103,9 @@ var nodemailer = require('nodemailer');
 
    })
 
-   app.post('/logout' , (req , res) => {
+   app.post('/logout' , (_req , res) => {
 
-               // Clear The Cookie And Logout The User
-               
+               // Clear The Cookie And Logout The User          
           res.clearCookie("refreshtoken" , { path:"/refresh_token" } );
           res.send({message:"User Successfully logged out"});
 
@@ -109,12 +114,18 @@ var nodemailer = require('nodemailer');
      
     
  // Creating A Protected Route For A Validated User
-    app.post("/dashboard" , async (req , res) => {
+    app.post("/user" , async (req , res) => {
           
         try{
-            const userId = isAuth(req); 
+            const userId = isAuth(req);
+            
+
             if(userId){
-                res.send({data:"You Have Protected Route Privileges"});
+              const presentUser = users.find(user => user._id === userId);
+                res.send({data:{
+                  name:presentUser.name,
+                  email:presentUser.email
+                }});
             }
         }
         catch(error){
@@ -134,7 +145,7 @@ var nodemailer = require('nodemailer');
 
           const refreshToken = req.cookies.refreshtoken;
                   
-        if(!refreshToken) { return  res.send({accessToken:"1"})}
+        if(!refreshToken) { return  res.send({accessToken:"" })}
          let payload = null;
         try{
             payload =verify(refreshToken , process.env.REFRESH_TOKEN_SECRET) 
@@ -142,25 +153,25 @@ var nodemailer = require('nodemailer');
         }
         catch(err){
                  
-            res.send({accessToken:"2"})
+            res.send({accessToken:""})
         }
            
       
 
         const user = users.find(user => user._id === payload.userId);
 
-           if(!user) { return res.send({accessToken:"4"})} 
+           if(!user) { return res.send({accessToken:""})} 
               
           if(user.refreshToken !== refreshToken){
-              return res.send({accessToken:"3"})
+              return res.send({accessToken:""})
           }
           
           const accessToken = createAccessToken(user._id);
-          const newRefreshToken = createRefreshToken(user._id);
+          // const newRefreshToken = createRefreshToken(user._id);
 
-          sendRefreshToken(res , newRefreshToken)
+          // sendRefreshToken(res , newRefreshToken)
 
-          res.send({accessToken})
+         res.send({accessToken});
 
 
      
